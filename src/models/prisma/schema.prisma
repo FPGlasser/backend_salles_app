@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Companies {
+  id              String    @id @default(uuid())
+  code            String    @unique @db.Char(12)
+  name            String    @db.VarChar(24)
+  foundation_Date DateTime
+  creation_at     DateTime
+  update_at       DateTime  @default(now())
+  branchs         Branchs[]
+}
+
+model Branchs {
+  id             String            @id @default(uuid())
+  code           String            @unique
+  name           String            @db.VarChar()
+  description    String            @db.VarChar(100)
+  email          String            @db.VarChar(24)
+  telephone1     Int               @db.Integer
+  telephone2     Int               @db.Integer
+  company        Companies         @relation(fields: [company_id], references: [id])
+  company_id     String
+  Branch_Address Branch_Address[]
+  branch_product Branchs_Product[]
+}
+
+model Address {
+  id             String           @id @unique @default(uuid())
+  code           String           @db.VarChar(16)
+  city           String           @db.VarChar(24)
+  province       String           @db.VarChar(24)
+  av_street      String           @db.VarChar(24)
+  created_at     DateTime
+  updated_at     DateTime         @default(now())
+  Branch_Address Branch_Address[]
+}
+
+model Branch_Address {
+  id         String   @id @unique @default(uuid())
+  branch     Branchs  @relation(fields: [branch_id], references: [id])
+  branch_id  String
+  address    Address  @relation(fields: [address_id], references: [id])
+  address_id String
+  created_at DateTime @db.Date
+  update_at  DateTime @db.Timestamp()
+}
+
+model Product {
+  id                String             @id @default(uuid())
+  name              String             @db.VarChar(24)
+  weight            Float              @db.Real
+  lenght            Decimal            @db.Decimal
+  width             Decimal            @db.Decimal
+  height            Decimal            @db.Decimal
+  short_description String             @db.VarChar(36)
+  description       String             @db.VarChar(100)
+  created_at        DateTime           @db.Date
+  updated_at        DateTime           @db.Timestamp()
+  branch_product    Branchs_Product[]
+  sales             Sales[]
+  product_category  Product_Category[]
+}
+
+model Branchs_Product {
+  id         String   @id @default(uuid())
+  branch     Branchs  @relation(fields: [branch_id], references: [id])
+  branch_id  String
+  product    Product  @relation(fields: [product_id], references: [id])
+  product_id String
+  unit_price Decimal  @db.Money
+  quantity   Int      @db.Integer
+  in_stock   Boolean  @default(false) @db.Boolean
+  created_at DateTime @db.Date
+  updated_at DateTime @db.Timestamp()
+}
+
+model Category {
+  id               String             @id @default(uuid())
+  name             String             @db.VarChar(24)
+  created_at       DateTime           @db.Timestamp()
+  updated_at       DateTime           @db.Timestamp()
+  product_category Product_Category[]
+}
+
+model Product_Category {
+  id          String   @id @default(uuid())
+  product     Product  @relation(fields: [product_id], references: [id])
+  product_id  String
+  category    Category @relation(fields: [category_id], references: [id])
+  category_id String
+}
+
+model Sales {
+  id               String   @id @default(uuid())
+  product          Product  @relation(fields: [product_id], references: [id])
+  product_id       String
+  sold_at          DateTime @default(now()) @db.Timestamp()
+  sales_quant      Int      @db.Integer
+  sales_uni_price  Decimal  @db.Money
+  sale_total_value Decimal  @db.Money
+  employee         Employee @relation(fields: [employee_id], references: [id])
+  employee_id      String
+}
+
+model Employee {
+  id            String   @id @default(uuid())
+  name          String   @db.VarChar(64)
+  birth_date    DateTime @db.Date
+  employee_code String   @db.VarChar(16)
+  created_at    DateTime @db.Date
+  updated_at    DateTime @db.Timestamp()
+  role          ROLE
+  login         Login[]
+  sales         Sales[]
+}
+
+model Login {
+  id           String               @id @default(uuid())
+  employee     Employee             @relation(fields: [employee_id], references: [id])
+  employee_id  String
+  username     String               @db.VarChar(16)
+  password     String               @db.VarChar(16)
+  updated_at   DateTime             @default(now()) @db.Date
+  security_ask Login_Security_Ask[]
+}
+
+model Security_Asks {
+  id           String               @id @default(uuid())
+  ask          String               @db.VarChar(64)
+  description  String               @db.VarChar(100)
+  created_at   DateTime             @db.Timestamp()
+  security_ask Login_Security_Ask[]
+}
+
+model Login_Security_Ask {
+  id         String        @id @default(uuid())
+  login      Login         @relation(fields: [login_id], references: [id])
+  login_id   String
+  asks       Security_Asks @relation(fields: [ask_id], references: [id])
+  ask_id     String
+  created_at DateTime      @db.Timestamp()
+  updated_at DateTime      @db.Timestamp()
+}
+
+enum ROLE {
+  ADMIN
+  MANAGER
+  SALLER
+}
