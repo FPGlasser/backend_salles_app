@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Companies" ALTER COLUMN "creation_at" SET DEFAULT CURRENT_TIMESTAMP;

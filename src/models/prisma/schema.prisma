@@ -14,8 +14,8 @@ model Companies {
   id              String    @id @default(uuid())
   code            String    @unique @db.Char(12)
   name            String    @db.VarChar(24)
-  foundation_Date DateTime
-  creation_at     DateTime
+  foundation_date DateTime  @db.Date()
+  creation_at     DateTime  @db.Timestamp() @default(now())
   update_at       DateTime  @default(now())
   branchs         Branchs[]
 }
@@ -87,6 +87,7 @@ model Branchs_Product {
 model Category {
   id               String             @id @default(uuid())
   name             String             @db.VarChar(24)
+  description      String             @db.VarChar(100)
   created_at       DateTime           @db.Timestamp()
   updated_at       DateTime           @db.Timestamp()
   product_category Product_Category[]
@@ -127,10 +128,10 @@ model Employee {
 model Login {
   id           String               @id @default(uuid())
   employee     Employee             @relation(fields: [employee_id], references: [id])
-  employee_id  String
   username     String               @db.VarChar(16)
   password     String               @db.VarChar(16)
   updated_at   DateTime             @default(now()) @db.Date
+  employee_id  String
   security_ask Login_Security_Ask[]
 }
 
