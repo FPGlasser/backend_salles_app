@@ -23,4 +23,3 @@ process.on('uncaughtException', (error) => {
 }).on('uncaughtExceptionMonitor', (error) => {
     console.error(error)
 })
-
